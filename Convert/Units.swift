@@ -7,7 +7,9 @@
 
 import Foundation
 
-enum TimeUnit: Int, CustomStringConvertible, CaseIterable {
+protocol Measurable: CustomStringConvertible, CaseIterable {}
+
+enum TimeUnit: Measurable {
     case seconds
     case minutes
     case hours
@@ -25,11 +27,7 @@ enum TimeUnit: Int, CustomStringConvertible, CaseIterable {
             return "Days"
         }
     }
-
-    static var allValues: [TimeUnit] {
-        return [.seconds, .minutes, .hours, .days]
-    }
-
+    
     static func convert(_ inputValue: String, from targetUnit: TimeUnit, to destinationUnit: TimeUnit) -> Double {
         guard let input = Double(inputValue) else { return 0 }
 
@@ -60,3 +58,54 @@ enum TimeUnit: Int, CustomStringConvertible, CaseIterable {
         }
     }
 }
+
+enum LengthUnit: Measurable {
+    case meters
+    case feet
+    case yards
+    case miles
+
+    var description: String {
+        switch self {
+        case .meters:
+            return "Meters"
+        case .feet:
+            return "Feet"
+        case .yards:
+            return "Yards"
+        case .miles:
+            return "Miles"
+        }
+    }
+
+    static func convert(_ inputValue: String, from targetUnit: LengthUnit, to destinationUnit: LengthUnit) -> Double {
+        guard let input = Double(inputValue) else { return 0 }
+
+        let inputInMeters = LengthUnit.meters(input, from: targetUnit)
+
+        switch destinationUnit {
+        case .meters:
+            return inputInMeters
+        case .feet:
+            return inputInMeters / 0.3048
+        case .yards:
+            return inputInMeters / 0.9144
+        case .miles:
+            return inputInMeters / 1609.34
+        }
+    }
+
+    static private func meters(_ inputValue: Double, from unit: LengthUnit) -> Double {
+        switch unit {
+        case .meters:
+            return inputValue
+        case .feet:
+            return inputValue * 0.3048
+        case .yards:
+            return inputValue * 0.9144
+        case .miles:
+            return inputValue * 1609.34
+        }
+    }
+}
+
